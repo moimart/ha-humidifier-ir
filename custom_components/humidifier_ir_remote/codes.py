@@ -2,6 +2,11 @@
 
 All 6 buttons captured + decoded with valid NEC inverse-byte checksums.
 The humidifier uses standard NEC at 38 kHz with address 0x00.
+
+The original remote always emits each press as **frame + NEC repeat code**
+(verified across all 6 captures). The receiver appears to require the
+repeat for the press to register reliably — single-frame transmissions
+get ignored. So `to_command()` defaults to `repeat_count=1`.
 """
 
 from __future__ import annotations
@@ -28,8 +33,13 @@ class HumidifierCommand(IntEnum):
     MIST_LEVEL = 0x09     # bigsmall — toggles between high/low mist
     LIGHT = 0x0A          # night light — toggle
 
-    def to_command(self, repeat_count: int = 0) -> NECCommand:
-        """Build the NECCommand for this button press."""
+    def to_command(self, repeat_count: int = 1) -> NECCommand:
+        """Build the NECCommand for this button press.
+
+        Defaults to ``repeat_count=1`` because this humidifier's receiver
+        requires the trailing NEC repeat frame — single-frame presses are
+        ignored. See the module docstring for capture analysis.
+        """
         return NECCommand(
             address=ADDRESS,
             command=self.value,
