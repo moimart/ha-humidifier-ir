@@ -1,0 +1,11 @@
+{
+  "domain": "humidifier_ir_remote",
+  "name": "Humidifier IR Remote",
+  "version": "0.1.0",
+  "codeowners": ["@moimart"],
+  "config_flow": true,
+  "documentation": "https://github.com/moimart/ha-humidifier-ir",
+  "iot_class": "assumed_state",
+  "issue_tracker": "https://github.com/moimart/ha-humidifier-ir/issues",
+  "requirements": ["infrared-protocols>=2.0.0"]
+}
