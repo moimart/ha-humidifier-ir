@@ -16,9 +16,9 @@ One device with four entities:
 | Entity | Purpose |
 |---|---|
 | `humidifier.<name>` | Power on/off + mode (Continuous / Intermittent) |
-| `switch.<name>_night_light` | Toggle the unit's night light |
-| `switch.<name>_high_mist` | Toggle mist level (on = high, off = low) |
-| `button.<name>_cycle_timer` | One-shot press to advance the unit's timer setting |
+| `button.<name>_light` | One-press: toggle the unit's night light |
+| `button.<name>_mist_level` | One-press: toggle mist level (low ↔ high) |
+| `button.<name>_cycle_timer` | One-press: advance the unit's timer setting |
 
 All entities are **`assumed_state`** — there's no feedback channel from
 the humidifier, so HA's state tracks what we *think* the unit is doing.

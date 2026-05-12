@@ -1,4 +1,4 @@
-"""Button entity — Cycle Timer."""
+"""Button entities — Cycle Timer, Light, Mist Level."""
 
 from __future__ import annotations
 
@@ -20,26 +20,60 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the timer-cycle button."""
-    async_add_entities([CycleTimerButton(entry)])
+    """Set up the three press-to-toggle buttons."""
+    async_add_entities(
+        [
+            OneShotButton(
+                entry=entry,
+                key="cycle_timer",
+                friendly_name="Cycle Timer",
+                button=HumidifierCommand.TIMER,
+                icon="mdi:timer-cog-outline",
+            ),
+            OneShotButton(
+                entry=entry,
+                key="light",
+                friendly_name="Light",
+                button=HumidifierCommand.LIGHT,
+                icon="mdi:lightbulb-night-outline",
+            ),
+            OneShotButton(
+                entry=entry,
+                key="mist_level",
+                friendly_name="Mist Level",
+                button=HumidifierCommand.MIST_LEVEL,
+                icon="mdi:weather-fog",
+            ),
+        ]
+    )
 
 
-class CycleTimerButton(ButtonEntity):
-    """One-shot button that advances the timer state on the humidifier.
+class OneShotButton(ButtonEntity):
+    """A one-press button that sends a single IR code.
 
-    The physical button cycles through whatever timer presets the unit has
-    (typically 1h → 2h → 4h → off, but varies by model). We don't track which
-    preset is active — pressing this just sends one IR frame.
+    The physical remote has one button for each of these — pressing it on
+    the unit toggles the underlying state. We don't try to model that state
+    in HA (no feedback channel = lying state would mislead automations);
+    just expose the press as a simple action.
     """
 
     _attr_has_entity_name = True
-    _attr_name = "Cycle Timer"
-    _attr_icon = "mdi:timer-cog-outline"
 
-    def __init__(self, entry: ConfigEntry) -> None:
-        """Initialise."""
+    def __init__(
+        self,
+        *,
+        entry: ConfigEntry,
+        key: str,
+        friendly_name: str,
+        button: HumidifierCommand,
+        icon: str,
+    ) -> None:
+        """Initialise the button entity."""
         self._entry_id = entry.entry_id
-        self._attr_unique_id = f"{entry.entry_id}_timer_cycle"
+        self._button = button
+        self._attr_name = friendly_name
+        self._attr_unique_id = f"{entry.entry_id}_{key}"
+        self._attr_icon = icon
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": entry.data[CONF_NAME],
@@ -52,5 +86,5 @@ class CycleTimerButton(ButtonEntity):
         return get_runtime(self.hass, self._entry_id)
 
     async def async_press(self) -> None:
-        """Send one timer-cycle press."""
-        await self._runtime.send(HumidifierCommand.TIMER)
+        """Send one IR frame for the configured command."""
+        await self._runtime.send(self._button)

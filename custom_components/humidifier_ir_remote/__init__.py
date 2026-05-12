@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from .codes import HumidifierCommand
 from .const import DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.HUMIDIFIER, Platform.SWITCH, Platform.BUTTON]
+PLATFORMS: list[Platform] = [Platform.HUMIDIFIER, Platform.BUTTON]
 
 # Per-config-entry runtime state stored on the entry.
 type HumidifierIrEntryData = "_RuntimeData"
